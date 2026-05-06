@@ -151,7 +151,7 @@ export default function GamingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {quotesData.map(q => (
               <div key={q.id} className="bg-slate-900/50 p-6 rounded-xl border border-slate-700 relative hover:-translate-y-1 transition-transform">
-                <span className="text-6xl absolute top-2 left-4 text-slate-700/50 font-serif">"</span>
+                <span className="text-6xl absolute top-2 left-4 text-slate-700/50 font-serif">&quot;</span>
                 <p className="text-gray-300 italic relative z-10 text-lg mt-4 leading-relaxed">
                   {q.quote}
                 </p>
@@ -203,7 +203,7 @@ export default function GamingPage() {
 
             <div className="bg-black/50 p-4 rounded-lg border border-slate-800">
               <p className="text-gray-500 text-xs font-mono mb-2">PLAYER BIO</p>
-              <p className="text-gray-300 italic">"{selectedPlayer.bio}"</p>
+              <p className="text-gray-300 italic">&quot;{selectedPlayer.bio}&quot;</p>
             </div>
           </div>
         </div>
