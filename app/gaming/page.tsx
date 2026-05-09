@@ -2,9 +2,15 @@
 import React, { useState } from 'react';
 import { membersData, historiData, quotesData, PlayerData } from './data';
 
+type ArcadeGame = {
+  title: string;
+  desc: string;
+  url: string;
+};
+
 export default function GamingEditorialPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
-  const [playingGame, setPlayingGame] = useState<{name: string, url: string} | null>(null);
+  const [playingGame, setPlayingGame] = useState<ArcadeGame | null>(null);
 
   const mlbbPlayers = membersData.filter(p => p.game === "MLBB");
   const valoPlayers = membersData.filter(p => p.game === "Valorant");
@@ -280,13 +286,13 @@ export default function GamingEditorialPage() {
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1" fill="currentColor"></circle><circle cx="18" cy="11" r="1" fill="currentColor"></circle></svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-black uppercase tracking-wide">{playingGame.name}</h3>
+                  <h3 className="font-bold text-lg text-black uppercase tracking-wide">{playingGame.title}</h3>
                 </div>
               </div>
               <button onClick={() => setPlayingGame(null)} className="text-gray-400 hover:text-[#FF0000] font-bold text-xl px-2 transition-colors">✕</button>
             </div>
             <div className="flex-1 bg-[#111] relative p-0.5">
-              <iframe src={playingGame.url} className="w-full h-full border-0" title={playingGame.name} sandbox="allow-scripts allow-same-origin"></iframe>
+              <iframe src={playingGame.url} className="w-full h-full border-0" title={playingGame.title} sandbox="allow-scripts allow-same-origin"></iframe>
             </div>
           </div>
         </div>
