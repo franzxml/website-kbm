@@ -1,14 +1,3 @@
-export const founders = [
-  "Arjun Maheswara Paundra",
-  "Frans Maylandgo Saragih",
-  "Fahdil Raihandi",
-  "Andy Emerik",
-  "Christian Haikhel Sengkley",
-  "Muhammad Rasyid",
-  "Zulfikarnaen",
-  "Rifa Dwinanda Bagaskara",
-];
-
 export const archiveLinks = [
   {
     title: "Galeri",
@@ -56,10 +45,6 @@ export const activities = [
 ];
 
 export const ladderWords = ["Keluarga", "Solid", "Random", "Gaming", "Nugas"];
-
-if (founders.length !== 8) {
-  throw new Error("Founders harus berisi 8 nama.");
-}
 
 if (archiveLinks.length !== 5) {
   throw new Error("Archive links harus berisi 5 item.");

@@ -1,4 +1,4 @@
-export interface PlayerData {
+export interface Player {
   id: number;
   nama: string;
   game: string;
@@ -11,7 +11,7 @@ export interface PlayerData {
   bio: string;
 }
 
-export const membersData: PlayerData[] = [
+export const players: Player[] = [
   // MLBB
   { id: 1, nama: "Frans Maylandgo S (Franzxml)", game: "MLBB", role: "Flex", rank: "Mythic", favHero: "Selena", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", winrate: "68.5%", matches: "450", bio: "Gak hyper gak senyum. Kalo buff biru dicolong langsung afk." },
   { id: 2, nama: "Fahdil R (BebanTeam)", game: "MLBB", role: "Roamer/ Exp", rank: "Mythical Glory", favHero: "Johnson", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka", winrate: "55.2%", matches: "620", bio: "Tumbal kemenangan tim. Sering mati demi buka map." },
@@ -36,12 +36,12 @@ export const membersData: PlayerData[] = [
   { id: 13, nama: "BLACKPA", game: "COC", role: "Chief", rank: "Town Hall 15", favHero: "Edrag Spam", img: "https://play-lh.googleusercontent.com/sFmWfYbYp_2ea7VRMTnwd3gjIBrPGXHj_d_ab1_k1q1p2OMk4riGMF1vqxdhONOtTYOt_BVpk7a4AYcKU68LNGQ", winrate: "100%", matches: "War Active", bio: "Farming mulu kapan war." }
 ];
 
-export const historiData = [
+export const matchHistory = [
   { id: 1, match: "KBM vs Anak SI Kelas B", game: "MLBB", result: "VICTORY", score: "3 - 1", date: "Malam Minggu Lalu" },
   { id: 2, match: "KBM vs Bocil Warnet", game: "Valorant", result: "DEFEAT", score: "11 - 13", date: "Kamis Malam" },
 ];
 
-export const quotesData = [
+export const gameQuotes = [
   { id: 1, name: "Blackpajak", quote: "Tahan bawa late game, gue yang bantai.", game: "MLBB" },
   { id: 2, name: "Fahdil R", quote: "Tiki-taka itu seni, trobosan lambung itu judi.", game: "eFootball" },
 ];

@@ -1,7 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { characters, type Character } from "./FighterData";
+import {
+  bioByCharacter,
+  characters,
+  galleryByCharacter,
+  statLabels,
+  statsByCharacter,
+  type Character,
+} from "./data";
 
 const C = {
   white:   "#F5F5F5",
@@ -14,80 +22,6 @@ const C = {
 const SEL = "SELECT PLAYER";
 const TICKER_TOP_TEXT = Array(30).fill(SEL).join("          ");
 const buildBottom = (name: string) => Array(50).fill(name.toUpperCase()).join("          ");
-
-// Dummy gallery images per character (reusing imgur assets as placeholders)
-const galleryMap: Record<string, { src: string; caption: string }[]> = {
-  frans:    [
-    { src: "https://i.imgur.com/vUI1ZQn.png", caption: "Evil Ryu Mode" },
-    { src: "https://i.imgur.com/vUI1ZQn.png", caption: "Kage Awakening" },
-    { src: "https://i.imgur.com/vUI1ZQn.png", caption: "Training Arc" },
-  ],
-  paundra:  [
-    { src: "/characters/paundra-bunga.png", caption: "Flower Mode" },
-    { src: "/characters/paundra-gaming.png", caption: "Gaming Mode" },
-    { src: "/characters/paundra-batik.png", caption: "Batik Heritage" },
-  ],
-  chun_li:  [
-    { src: "https://i.imgur.com/Mk2hOGy.png", caption: "Interpol Agent" },
-    { src: "https://i.imgur.com/Mk2hOGy.png", caption: "Alpha Costume" },
-    { src: "https://i.imgur.com/Mk2hOGy.png", caption: "Classic Look" },
-  ],
-  dee_jay:  [
-    { src: "https://i.imgur.com/egxPEel.png", caption: "Gold Edition" },
-    { src: "https://i.imgur.com/egxPEel.png", caption: "Jamaica Pride" },
-    { src: "https://i.imgur.com/egxPEel.png", caption: "Stage Show" },
-  ],
-  cammy:    [
-    { src: "https://i.imgur.com/8nXZIXB.png", caption: "Delta Red" },
-    { src: "https://i.imgur.com/8nXZIXB.png", caption: "Shadaloo Suit" },
-    { src: "https://i.imgur.com/8nXZIXB.png", caption: "Street Look" },
-  ],
-  sagat:    [
-    { src: "https://i.imgur.com/tDPvjFV.png", caption: "Emperor of Muay Thai" },
-    { src: "https://i.imgur.com/tDPvjFV.png", caption: "Shadow Form" },
-    { src: "https://i.imgur.com/tDPvjFV.png", caption: "Classic Gi" },
-  ],
-  zangief:  [
-    { src: "https://i.imgur.com/JfZ4TFq.png", caption: "Red Cyclone" },
-    { src: "https://i.imgur.com/JfZ4TFq.png", caption: "Mecha Zangief" },
-    { src: "https://i.imgur.com/JfZ4TFq.png", caption: "Soviet Pride" },
-  ],
-  akuma:    [
-    { src: "https://i.imgur.com/YFCTE8T.png", caption: "Demon King" },
-    { src: "https://i.imgur.com/YFCTE8T.png", caption: "Shin Akuma" },
-    { src: "https://i.imgur.com/YFCTE8T.png", caption: "Raging Demon" },
-  ],
-  blanka:   [
-    { src: "https://i.imgur.com/N1leELw.png", caption: "Amazon Beast" },
-    { src: "https://i.imgur.com/N1leELw.png", caption: "Electric Surge" },
-    { src: "https://i.imgur.com/N1leELw.png", caption: "Jungle Predator" },
-  ],
-};
-
-const dummyBio: Record<string, string> = {
-  frans:   "A wandering warrior who mastered the art of sleeping mid-battle. His Ansatsuken technique is unorthodox — fueled entirely by naps and vague ambition.",
-  paundra: "Born with a spatula in one hand and a controller in the other, Paundra fights with the grace of freshly cooked pasta and the precision of a pro gamer.",
-  chun_li: "Interpol's finest. Trained since childhood in Chinese martial arts, she seeks vengeance against Shadaloo while maintaining impeccable hair at all times.",
-  dee_jay: "Jamaica's breakbeat champion turned street fighter. His Dread Kicks hit harder than a bass drop at 3AM. He fights to the rhythm of his own mixtape.",
-  cammy:   "Engineered by Shadaloo, liberated by willpower. Delta Red's sharpest blade, she fights for Britain and for the fragments of a self she had to rebuild.",
-  sagat:   "The Emperor of Muay Thai carries one scar given by Ryu — and one obsession. Seven feet of unrelenting fury, still hunting redemption in every bout.",
-  zangief: "Russia's national hero. He wrestled bears for fun before discovering street fighting was, somehow, more intense. The Red Cyclone breaks bones and spirits.",
-  akuma:   "He abandoned humanity to master the Satsui no Hado. Akuma exists at the edge of life and death, seeking only the perfect battle to finally end him.",
-  blanka:  "Lost in the Amazon as a child, he became something feral and electric. Blanka doesn't fight with technique — he fights with pure survival instinct.",
-};
-
-const statLabels = ["Power", "Speed", "Defense", "Technique"];
-const statsMap: Record<string, number[]> = {
-  frans:   [65, 80, 55, 70],
-  paundra: [70, 75, 65, 80],
-  chun_li: [75, 95, 70, 90],
-  dee_jay: [80, 85, 65, 75],
-  cammy:   [78, 92, 68, 88],
-  sagat:   [95, 60, 80, 85],
-  zangief: [99, 45, 90, 60],
-  akuma:   [98, 88, 40, 95],
-  blanka:  [85, 78, 72, 55],
-};
 
 export default function StreetFighter() {
   const [selected, setSelected]     = useState<Character>(characters[0]);
@@ -179,9 +113,9 @@ export default function StreetFighter() {
   const currentSkin = skins[skinIndex] ?? selected.largeImg;
   const tickerBot   = buildBottom(selected.name);
   const sidePad     = isMobile ? "0px" : "110px";
-  const gallery     = galleryMap[selected.id] ?? [];
-  const bio         = dummyBio[selected.id] ?? "";
-  const stats       = statsMap[selected.id] ?? [70, 70, 70, 70];
+  const gallery     = galleryByCharacter[selected.id] ?? [];
+  const bio         = bioByCharacter[selected.id] ?? "";
+  const stats       = statsByCharacter[selected.id] ?? [70, 70, 70, 70];
 
   return (
     <div style={{
@@ -451,10 +385,13 @@ export default function StreetFighter() {
 
       {/* ─── CHARACTER IMAGE ─── */}
       {/* FIX: left selalu "50%", pergeseran hanya lewat transform di dalam keyframes */}
-      <img
+      <Image
         key={`${slideKey}-${isSelected ? "selected" : "idle"}`}
         src={currentSkin}
         alt={selected.name}
+        width={900}
+        height={1200}
+        unoptimized
         style={{
           position: "absolute",
           bottom: 0,
@@ -755,10 +692,13 @@ export default function StreetFighter() {
             }}>
               {gallery.map((g, i) => (
                 <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <img
+                  <Image
                     className="gallery-img"
                     src={g.src}
                     alt={g.caption}
+                    width={360}
+                    height={480}
+                    unoptimized
                     style={{
                       width: "100%",
                       aspectRatio: "3/4",

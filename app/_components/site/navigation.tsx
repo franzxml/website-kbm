@@ -1,5 +1,3 @@
-import { GithubIcon, InstagramIcon } from "./icons";
-
 export const colors = {
   background: "#F5F5F5",
   hover: "#DFF1F1",
@@ -29,20 +27,4 @@ export const navItems = [
       { label: "Aib", href: "/pameran-aib" },
     ],
   },
-];
-
-export const footerImages = [
-  {
-    src: "/footer/frans.png",
-    alt: "Frans.",
-  },
-  {
-    src: "/footer/paundra.png",
-    alt: "Paundra memegang laptop.",
-  },
-];
-
-export const socials = [
-  { label: "Instagram", icon: InstagramIcon, href: "https://www.instagram.com/franzxml/" },
-  { label: "Github", icon: GithubIcon, href: "https://github.com/franzxml" },
 ];

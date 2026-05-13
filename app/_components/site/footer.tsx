@@ -1,5 +1,5 @@
 import { CodeXml } from "lucide-react";
-import { founders } from "../home/data";
+import { founderNames } from "../../_data/founders";
 
 export default function SiteFooter() {
   return (
@@ -35,7 +35,7 @@ export default function SiteFooter() {
               </div>
 
               <ol className="mt-9 divide-y divide-black/10">
-                {founders.map((name, index) => (
+                {founderNames.map((name, index) => (
                   <li key={name} className="flex min-h-[70px] items-center gap-8 py-4">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#FF0000]/10 text-xl font-black text-[#FF0000]">
                       {index + 1}
@@ -70,8 +70,7 @@ export default function SiteFooter() {
               </div>
 
               <p className="mt-7 max-w-xl text-2xl leading-10 text-black/58">
-                Dibangun dengan kolaborasi, dedikasi, dan semangat{" "}
-                <span className="text-[#FF0000]">open source.</span>
+                Dibangun dengan kolaborasi, dedikasi, dan semangat kekeluargaan.
               </p>
             </div>
           </div>

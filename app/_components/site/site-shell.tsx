@@ -1,7 +1,7 @@
 import SiteFooter from "./footer";
 import SiteHeader from "./header";
 
-export default function SiteChrome({
+export default function SiteShell({
   children,
 }: Readonly<{
   children: React.ReactNode;

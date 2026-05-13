@@ -1,6 +1,8 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { activities, founders, ladderWords, notes } from "./data";
+import { activities, ladderWords, notes } from "../../_data/home";
+import FoundersBook from "./founders-book";
+import SplashIntro from "./splash-intro";
 
 function TinyMeta({
   left,
@@ -24,10 +26,10 @@ function Divider() {
 function HeroPeopleImage() {
   return (
     <div className="relative min-h-[360px] overflow-visible sm:min-h-[460px] lg:min-h-[520px]">
-      <span className="absolute left-[15%] top-[22%] z-10 -rotate-12 text-base font-black uppercase tracking-[0.5em] text-[#FF0000]">
+      <span className="absolute left-[15%] top-[22%] z-10 hidden -rotate-12 text-base font-black uppercase tracking-[0.5em] text-[#FF0000] lg:block">
         Fahdil
       </span>
-      <span className="absolute right-[6%] top-[28%] z-10 rotate-6 text-base font-black uppercase tracking-[0.5em] text-[#FF0000]">
+      <span className="absolute right-[6%] top-[28%] z-10 hidden rotate-6 text-base font-black uppercase tracking-[0.5em] text-[#FF0000] lg:block">
         Frans
       </span>
       <Image
@@ -46,10 +48,10 @@ function HeroPeopleImage() {
 function IdentityPeopleImage() {
   return (
     <div className="relative min-h-[320px] overflow-visible sm:min-h-[420px] lg:min-h-[500px]">
-      <span className="absolute left-[22%] top-[25%] z-10 -rotate-6 text-sm font-black uppercase tracking-[0.45em] text-[#FF0000]">
+      <span className="absolute left-[22%] top-[25%] z-10 hidden -rotate-6 text-sm font-black uppercase tracking-[0.45em] text-[#FF0000] lg:block">
         Paundra
       </span>
-      <span className="absolute right-[13%] top-[31%] z-10 rotate-12 text-sm font-black uppercase tracking-[0.45em] text-[#FF0000]">
+      <span className="absolute right-[13%] top-[31%] z-10 hidden rotate-12 text-sm font-black uppercase tracking-[0.45em] text-[#FF0000] lg:block">
         Chris
       </span>
       <Image
@@ -133,7 +135,7 @@ function MiniMilitiaImage({
 
 function HeroSection() {
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+    <div id="about-kbm" className="grid scroll-mt-24 gap-5 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="relative px-5 py-6 sm:px-8 sm:py-8">
         <div
           className="pointer-events-none absolute -inset-x-8 -inset-y-10 bg-[linear-gradient(to_right,rgba(187,213,218,0.13)_1px,transparent_1px),linear-gradient(to_bottom,rgba(187,213,218,0.13)_1px,transparent_1px),radial-gradient(circle_at_30%_20%,rgba(223,241,241,0.22),transparent_35%)] bg-[size:72px_72px,72px_72px,100%_100%] [mask-image:radial-gradient(ellipse_at_center,black_35%,rgba(0,0,0,0.7)_58%,transparent_82%)]"
@@ -348,19 +350,7 @@ function FoundersSection() {
         the first eight
       </h2>
 
-      <div className="grid border-t border-black/10 sm:grid-cols-2 lg:grid-cols-4">
-        {founders.map((name, index) => (
-          <div
-            key={name}
-            className="min-h-[150px] border-b border-black/10 py-5 pr-5 first:pl-0 sm:border-r sm:pl-5 sm:[&:nth-child(2n)]:border-r-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(4n)]:border-r-0"
-          >
-            <TinyMeta left={String(index + 1).padStart(2, "0")} />
-            <p className="mt-5 max-w-[170px] text-lg font-medium leading-6 tracking-[-0.03em]">
-              {name}
-            </p>
-          </div>
-        ))}
-      </div>
+      <FoundersBook />
     </section>
   );
 }
@@ -368,6 +358,7 @@ function FoundersSection() {
 export default function HomePage() {
   return (
     <main className="bg-[#F5F5F5] text-black">
+      <SplashIntro />
       <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
         <HeroSection />
         <IdentitySection />

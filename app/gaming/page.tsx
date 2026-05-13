@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from 'react';
-import { membersData, historiData, quotesData, PlayerData } from './data';
+
+import { useState } from "react";
+import { gameQuotes, matchHistory, players, type Player } from "./data";
 
 type ArcadeGame = {
   title: string;
@@ -9,14 +10,14 @@ type ArcadeGame = {
 };
 
 export default function GamingEditorialPage() {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [playingGame, setPlayingGame] = useState<ArcadeGame | null>(null);
 
-  const mlbbPlayers = membersData.filter(p => p.game === "MLBB");
-  const valoPlayers = membersData.filter(p => p.game === "Valorant");
-  const ffPlayers = membersData.filter(p => p.game === "Free Fire");
-  const efootballPlayers = membersData.filter(p => p.game === "eFootball");
-  const cocPlayers = membersData.filter(p => p.game === "COC");
+  const mlbbPlayers = players.filter((player) => player.game === "MLBB");
+  const valoPlayers = players.filter((player) => player.game === "Valorant");
+  const ffPlayers = players.filter((player) => player.game === "Free Fire");
+  const efootballPlayers = players.filter((player) => player.game === "eFootball");
+  const cocPlayers = players.filter((player) => player.game === "COC");
 
   const arcadeGames = [
     { title: 'T-Rex Runner', desc: 'Game dinosaurus pas internet mati.', url: 'https://chromedino.com/' },
@@ -25,7 +26,7 @@ export default function GamingEditorialPage() {
     { title: 'Pac-Man', desc: 'Makan kuning-kuning, awas hantu.', url: 'https://freepacman.org/' }
   ];
 
-  const PlayerCard = ({ player }: { player: PlayerData }) => (
+  const PlayerCard = ({ player }: { player: Player }) => (
     <div 
       onClick={() => setSelectedPlayer(player)}
       className="border border-gray-200 p-4 hover:border-[#FF0000] transition-colors cursor-pointer bg-white relative overflow-hidden group shadow-sm"
@@ -239,7 +240,7 @@ export default function GamingEditorialPage() {
             <div className="lg:col-span-7">
               <p className="text-xs text-gray-400 tracking-widest uppercase mb-6">07 / Match Log</p>
               <div className="space-y-3">
-                {historiData.map(h => (
+                {matchHistory.map(h => (
                   <div key={h.id} className="border border-gray-200 p-5 flex justify-between items-center bg-[#fafafa] hover:bg-white transition-colors">
                     <div>
                       <h4 className="text-base font-bold">{h.match}</h4>
@@ -257,7 +258,7 @@ export default function GamingEditorialPage() {
             <div className="lg:col-span-5 bg-black text-white p-8">
               <p className="text-xs text-gray-400 tracking-widest uppercase mb-6 border-b border-gray-700 pb-3">08 / Kata Mereka</p>
               <div className="space-y-8">
-                {quotesData.map(q => (
+                {gameQuotes.map(q => (
                   <div key={q.id}>
                     <p className="text-lg italic text-gray-200 mb-2 font-serif">&quot;{q.quote}&quot;</p>
                     <p className="text-xs font-bold uppercase tracking-widest text-[#FF0000]">{q.name}</p>
