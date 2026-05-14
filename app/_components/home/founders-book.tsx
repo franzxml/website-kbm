@@ -124,7 +124,7 @@ export default function FoundersBook() {
             <div
               ref={scrollerRef}
               onScroll={syncActivePage}
-              className="relative flex snap-x snap-mandatory gap-6 overflow-x-auto overscroll-x-contain pb-4 scroll-smooth [scrollbar-width:thin]"
+              className="founders-book-scroller relative flex snap-x snap-mandatory gap-6 overflow-x-auto overscroll-x-contain pb-4 scroll-smooth"
               aria-label="First eight founders book"
             >
               {founderProfiles.map((founder, index) => (
@@ -158,24 +158,7 @@ export default function FoundersBook() {
               ))}
             </div>
 
-            <div className="relative mt-1 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                {founderProfiles.map((founder, index) => (
-                  <button
-                    key={founder.name}
-                    type="button"
-                    onClick={() => scrollToPage(index)}
-                    className={`h-2.5 rounded-full transition-all ${
-                      activePage === index
-                        ? "w-7 bg-[#FF0000]"
-                        : "w-2.5 bg-black/20 hover:bg-black/40"
-                    }`}
-                    aria-label={`Buka halaman ${founder.shortName}`}
-                    aria-current={activePage === index ? "page" : undefined}
-                  />
-                ))}
-              </div>
-
+            <div className="relative mt-1 flex justify-end">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -195,6 +178,16 @@ export default function FoundersBook() {
                 </button>
               </div>
             </div>
+
+            <style jsx>{`
+              .founders-book-scroller {
+                scrollbar-width: none;
+              }
+
+              .founders-book-scroller::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
           </div>
         </div>
       </div>
