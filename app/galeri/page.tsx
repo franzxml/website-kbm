@@ -3,17 +3,15 @@
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  bioByCharacter,
   characters,
-  galleryByCharacter,
   statLabels,
-  statsByCharacter,
   type Character,
 } from "./data";
+import GallerySection from "./gallery-section";
+import { useArcadeAudio } from "./useArcadeAudio";
 
 const C = {
   white:   "#F5F5F5",
-  ice:     "#DFF1F1",
   steel:   "#BBD5DA",
   red:     "#FF0000",
   redDark: "#cc0000",
@@ -24,12 +22,14 @@ const TICKER_TOP_TEXT = Array(30).fill(SEL).join("          ");
 const buildBottom = (name: string) => Array(50).fill(name.toUpperCase()).join("          ");
 
 export default function StreetFighter() {
+  const { playSfx, startMusic, stopMusic } = useArcadeAudio();
   const [selected, setSelected]     = useState<Character>(characters[0]);
   const [skinIndex, setSkinIndex]   = useState(0);
   const [slideKey, setSlideKey]     = useState(0);
   const [logoReady, setLogoReady]   = useState(false);
   const [isMobile, setIsMobile]     = useState(false);
   const [isSelected, setIsSelected] = useState(false);
+  const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [lastTap, setLastTap]       = useState(0);
 
   const selectedRef   = useRef<Character>(characters[0]);
@@ -39,7 +39,10 @@ export default function StreetFighter() {
   useEffect(() => { selectedRef.current   = selected;   }, [selected]);
   useEffect(() => { skinIndexRef.current  = skinIndex;  }, [skinIndex]);
   useEffect(() => { isSelectedRef.current = isSelected; }, [isSelected]);
-  useEffect(() => { setTimeout(() => setLogoReady(true), 50); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLogoReady(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 640);
@@ -48,22 +51,48 @@ export default function StreetFighter() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  const openWidget = useCallback(() => {
+    setIsWidgetOpen(true);
+    playSfx("open");
+    startMusic();
+  }, [playSfx, startMusic]);
+
+  const exitArcade = useCallback(() => {
+    playSfx("back");
+    stopMusic();
+    setIsSelected(false);
+    setIsWidgetOpen(false);
+  }, [playSfx, stopMusic]);
+
   const confirmSelect = useCallback(() => {
+    playSfx("confirm");
     setIsSelected(true);
-  }, []);
+  }, [playSfx]);
 
   const goBack = useCallback(() => {
+    playSfx("back");
     setIsSelected(false);
-  }, []);
+  }, [playSfx]);
+
+  const selectMode = useCallback((next: number) => {
+    const modes = selectedRef.current.skins;
+    if (modes.length <= 1) return;
+    const normalized = (next + modes.length) % modes.length;
+    playSfx("move");
+    setSkinIndex(normalized);
+    skinIndexRef.current = normalized;
+    setSlideKey((k) => k + 1);
+  }, [playSfx]);
 
   const selectCharacter = useCallback((char: Character) => {
     if (isSelectedRef.current) return;
+    if (selectedRef.current.id !== char.id) playSfx("move");
     setSelected(char);
     selectedRef.current  = char;
     setSkinIndex(0);
     skinIndexRef.current = 0;
     setSlideKey((k) => k + 1);
-  }, []);
+  }, [playSfx]);
 
   const handleCharTap = useCallback((char: Character) => {
     if (isSelectedRef.current) return;
@@ -77,8 +106,15 @@ export default function StreetFighter() {
   }, [selected, lastTap, selectCharacter, confirmSelect]);
 
   const handleKey = useCallback((e: KeyboardEvent) => {
+    if (!isWidgetOpen) return;
     if (isSelectedRef.current) {
       if (e.key === "Escape") goBack();
+      if (e.key === "a") selectMode(skinIndexRef.current - 1);
+      if (e.key === "d") selectMode(skinIndexRef.current + 1);
+      return;
+    }
+    if (e.key === "Escape") {
+      exitArcade();
       return;
     }
     if (e.key === "a" || e.key === "d") {
@@ -95,14 +131,12 @@ export default function StreetFighter() {
       const next = e.key === "w"
         ? (skinIndexRef.current - 1 + skins.length) % skins.length
         : (skinIndexRef.current + 1) % skins.length;
-      setSkinIndex(next);
-      skinIndexRef.current = next;
-      setSlideKey((k) => k + 1);
+      selectMode(next);
     }
     if (e.key === "Enter" || e.key === " ") {
       confirmSelect();
     }
-  }, [selectCharacter, confirmSelect, goBack]);
+  }, [isWidgetOpen, selectCharacter, selectMode, confirmSelect, goBack, exitArcade]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKey);
@@ -113,14 +147,15 @@ export default function StreetFighter() {
   const currentSkin = skins[skinIndex] ?? selected.largeImg;
   const tickerBot   = buildBottom(selected.name);
   const sidePad     = isMobile ? "0px" : "110px";
-  const gallery     = galleryByCharacter[selected.id] ?? [];
-  const bio         = bioByCharacter[selected.id] ?? "";
-  const stats       = statsByCharacter[selected.id] ?? [70, 70, 70, 70];
+  const bio         = selected.modeBios[skinIndex] ?? "";
+  const stats       = selected.modeStats[skinIndex] ?? [70, 70, 70, 70];
 
   return (
-    <div style={{
+    <>
+    <div className="arcade-root" style={{
       position: "relative",
-      minHeight: "100vh",
+      minHeight: "var(--arcade-height)",
+      height: "var(--arcade-height)",
       width: "100%",
       display: "flex",
       flexDirection: "column",
@@ -145,7 +180,16 @@ export default function StreetFighter() {
       }} />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Press+Start+2P&display=swap');
+
+        .arcade-root {
+          --arcade-height: calc(100svh - 80px);
+        }
+        @media (min-width: 1024px) {
+          .arcade-root {
+            --arcade-height: calc(100svh - 96px);
+          }
+        }
 
         @keyframes fadein { to { opacity: 1; } }
         @keyframes fadeout { to { opacity: 0; pointer-events: none; } }
@@ -164,8 +208,8 @@ export default function StreetFighter() {
 
         /* Mobile: perkecil tinggi karakter, posisi bottom tetap */
         @keyframes slideCharUp {
-          from { height: 65vh; transform: translateX(-50%); }
-          to   { height: 45vh; transform: translateX(-50%); }
+          from { height: 65%; transform: translateX(-50%); }
+          to   { height: 45%; transform: translateX(-50%); }
         }
 
         /* Detail panel slide in from right — desktop */
@@ -207,6 +251,11 @@ export default function StreetFighter() {
           0%   { opacity: 0; }
           30%  { opacity: 0.7; }
           100% { opacity: 0; }
+        }
+
+        @keyframes pressStartPulse {
+          0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,0,0,0); }
+          50%      { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 34px rgba(255,0,0,0.55); }
         }
 
         .ticker-v-fwd { animation: scrollV    28s linear infinite; }
@@ -272,19 +321,65 @@ export default function StreetFighter() {
         }
         .fight-btn:active { transform: scale(0.97); }
 
-        .back-btn {
+        .start-fighter-btn {
+          font-family: 'Press Start 2P', monospace;
+          font-size: clamp(0.7rem, 2vw, 1.25rem);
+          line-height: 1.7;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #F5F5F5;
+          background: #111;
+          border: 4px solid #FF0000;
+          padding: 18px 24px;
+          cursor: pointer;
+          text-shadow: 3px 3px 0 #FF0000, 5px 5px 0 #111;
+          animation: pressStartPulse 1.3s ease-in-out infinite;
+        }
+        .start-fighter-btn:hover {
+          background: #FF0000;
+          color: #fff;
+          border-color: #F5F5F5;
+        }
+
+        .kbm-fighter-logo {
+          font-family: 'Permanent Marker', 'Arial Black', Impact, sans-serif;
+          font-size: clamp(4.2rem, 10vw, 8.5rem);
+          font-style: italic;
+          font-weight: 400;
+          line-height: 0.78;
+          letter-spacing: 0;
+          color: #ffdf38;
+          -webkit-text-stroke: 3px #d91010;
+          text-transform: uppercase;
+          transform: skewX(-9deg) rotate(-5deg);
+          paint-order: stroke fill;
+          text-shadow:
+            3px 2px 0 #fff2,
+            6px 5px 0 #7a0000,
+            11px 9px 0 #111,
+            -3px 8px 0 #f15b00,
+            0 0 22px rgba(255, 0, 0, 0.7);
+          filter: drop-shadow(0 0 1px #111);
+        }
+
+        .arcade-nav-btn {
           font-family: 'Press Start 2P', monospace;
           font-size: 9px;
-          letter-spacing: 0.1em;
-          cursor: pointer;
-          border: 1px solid #BBD5DA;
-          background: transparent;
-          color: #BBD5DA;
-          padding: 6px 14px;
-          transition: all 0.15s;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
+          color: #F5F5F5;
+          background: rgba(0,0,0,0.72);
+          border: 2px solid #FF0000;
+          padding: 9px 12px;
+          cursor: pointer;
+          box-shadow: 3px 3px 0 #111;
+          transition: transform 0.12s, background 0.12s, color 0.12s;
         }
-        .back-btn:hover { background: #BBD5DA22; color: #F5F5F5; }
+        .arcade-nav-btn:hover {
+          background: #FF0000;
+          color: #fff;
+          transform: translateY(-1px);
+        }
 
         .stat-bar-fill {
           height: 100%;
@@ -309,7 +404,91 @@ export default function StreetFighter() {
           border-color: #FF0000;
           transform: scale(1.04);
         }
+
+        .character-detail-panel {
+          scrollbar-width: thin;
+          scrollbar-color: #FF0000 #111;
+        }
+        .character-detail-panel::-webkit-scrollbar {
+          width: 12px;
+        }
+        .character-detail-panel::-webkit-scrollbar-track {
+          background: #090909;
+          border-left: 1px solid rgba(187,213,218,0.2);
+        }
+        .character-detail-panel::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #FF0000, #7a0000);
+          border: 2px solid #090909;
+          box-shadow: inset 0 0 0 1px rgba(245,245,245,0.28);
+        }
+        .character-detail-panel::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #ff3b3b, #cc0000);
+        }
+
       `}</style>
+
+      {!isWidgetOpen && (
+        <div style={{
+          position: "relative",
+          zIndex: 20,
+          minHeight: "var(--arcade-height)",
+          height: "var(--arcade-height)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: isMobile ? 28 : 42,
+          padding: "24px",
+          textAlign: "center",
+        }}>
+          <div
+            className="kbm-fighter-logo"
+            style={{
+              opacity: logoReady ? 1 : 0,
+              transform: logoReady
+                ? "skewX(-9deg) rotate(-5deg) scale(1)"
+                : "skewX(-9deg) rotate(-5deg) scale(0.75)",
+              transition: "opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,1,0.5,1)",
+            }}
+          >
+            KBM
+          </div>
+          <button className="start-fighter-btn" onClick={openWidget}>
+            Select Your Fighter
+          </button>
+        </div>
+      )}
+
+      {isWidgetOpen && (
+        <>
+
+      <div style={{
+        position: "absolute",
+        top: isMobile ? 72 : 28,
+        left: isMobile ? 12 : 128,
+        right: isMobile ? 12 : 128,
+        zIndex: 40,
+        display: "flex",
+        justifyContent: isSelected ? "space-between" : "flex-start",
+        pointerEvents: "none",
+      }}>
+        <button
+          className="arcade-nav-btn"
+          onClick={exitArcade}
+          style={{ pointerEvents: "auto" }}
+        >
+          Exit
+        </button>
+        {isSelected && (
+          <button
+            className="arcade-nav-btn"
+            onClick={goBack}
+            style={{ pointerEvents: "auto" }}
+          >
+            Back
+          </button>
+        )}
+      </div>
 
       {/* ══════════ FLASH on select ══════════ */}
       {isSelected && (
@@ -396,7 +575,7 @@ export default function StreetFighter() {
           position: "absolute",
           bottom: 0,
           left: "50%",
-          height: isMobile ? "65vh" : "100vh",
+          height: isMobile ? "65%" : "var(--arcade-height)",
           zIndex: 2,
           objectFit: "contain",
           objectPosition: "bottom",
@@ -410,19 +589,21 @@ export default function StreetFighter() {
 
       {/* ─── logo ─── */}
       <div style={{
-        position: "relative", zIndex: 10,
+        position: "absolute",
+        top: isMobile ? 98 : 42,
+        left: 0,
+        right: 0,
+        zIndex: 10,
         display: "flex", justifyContent: "center",
-        paddingTop: "1.5rem",
-        paddingLeft: sidePad, paddingRight: sidePad,
+        pointerEvents: "none",
       }}>
-        <div style={{
-          backgroundImage: "url('https://i.imgur.com/RzfaUaY.png')",
-          backgroundSize: "100% 100%",
-          width:   logoReady ? (isMobile ? 170 : 240) : 0,
-          height:  logoReady ? (isMobile ? 50  : 70)  : 0,
+        <div className="kbm-fighter-logo" style={{
+          fontSize: isMobile ? "3rem" : "4.7rem",
           opacity: logoReady ? 1 : 0,
-          transition: "width 0.6s ease, height 0.6s ease, opacity 0.6s ease",
-        }} />
+          transition: "opacity 0.6s ease, transform 0.6s ease",
+        }}>
+          KBM
+        </div>
       </div>
 
       <div style={{ flex: 1 }} />
@@ -432,17 +613,17 @@ export default function StreetFighter() {
         <div style={{
           position: "relative", zIndex: 10, width: "100%",
           display: "flex", flexDirection: "column", alignItems: "center",
-          paddingBottom: "1.5rem",
+          paddingBottom: isMobile ? "0.85rem" : "1rem",
           paddingLeft: sidePad, paddingRight: sidePad,
           boxSizing: "border-box",
           animation: "fadein 0.8s linear 0.4s forwards", opacity: 0,
           background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 70%, transparent 100%)",
         }}>
           {/* — nama karakter — */}
-          <div style={{ marginBottom: "0.9rem", textAlign: "center" }}>
+          <div style={{ marginBottom: isMobile ? "0.55rem" : "0.65rem", textAlign: "center" }}>
             <h1 style={{
               fontFamily: "'Press Start 2P', monospace",
-              fontSize: isMobile ? "1.8rem" : "3.2rem",
+              fontSize: isMobile ? "1.2rem" : "2rem",
               color: C.white,
               margin: "0 0 0.2rem",
               letterSpacing: "0.05em",
@@ -487,13 +668,14 @@ export default function StreetFighter() {
           }}>
             {characters.map((char: Character) => {
               const isActive  = selected.id === char.id;
-              const btnW      = isMobile ? 60 : 78;
-              const btnH      = isMobile ? 68 : 88;
+              const btnW      = isMobile ? 46 : 60;
+              const btnH      = isMobile ? 52 : 68;
               return (
                 <button
                   key={char.id}
                   className="char-btn"
                   onClick={() => handleCharTap(char)}
+                  onMouseEnter={() => !isActive && playSfx("move")}
                   title={char.name}
                   style={{
                     position: "relative",
@@ -513,7 +695,7 @@ export default function StreetFighter() {
                       position: "absolute", bottom: 0, left: 0, right: 0,
                       background: C.red,
                       color: C.white,
-                      fontSize: isMobile ? 6 : 8,
+                      fontSize: isMobile ? 5 : 6,
                       fontFamily: "'Press Start 2P', monospace",
                       textAlign: "center", textTransform: "uppercase",
                       padding: "2px 0", letterSpacing: "0.03em",
@@ -527,10 +709,10 @@ export default function StreetFighter() {
           </div>
 
           {/* — FIGHT button + hints — */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: isMobile ? 7 : 8, marginTop: isMobile ? 9 : 10 }}>
             <button className="fight-btn" onClick={confirmSelect} style={{
-              fontSize: isMobile ? "0.75rem" : "1rem",
-              padding: isMobile ? "10px 28px" : "13px 40px",
+              fontSize: isMobile ? "0.62rem" : "0.78rem",
+              padding: isMobile ? "8px 22px" : "10px 30px",
             }}>
               ▶ FIGHT!
             </button>
@@ -562,7 +744,7 @@ export default function StreetFighter() {
 
       {/* ══════════ DETAIL PANEL — after selection ══════════ */}
       {isSelected && (
-        <div style={{
+        <div className="character-detail-panel" style={{
           position: isMobile ? "relative" : "absolute",
           zIndex: 10,
           // Desktop: right panel
@@ -577,7 +759,7 @@ export default function StreetFighter() {
             maxWidth: 480,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "flex-start",
           }),
           animation: isMobile
             ? "panelSlideUp 0.5s cubic-bezier(0.25,1,0.5,1) forwards"
@@ -586,15 +768,10 @@ export default function StreetFighter() {
           backdropFilter: "blur(10px)",
           borderTop: isMobile ? `2px solid ${C.red}` : "none",
           borderLeft: !isMobile ? `2px solid ${C.red}` : "none",
-          padding: isMobile ? "20px 20px 28px" : "32px 36px",
+          padding: isMobile ? "18px 20px 24px" : "88px 36px 28px",
           overflowY: "auto",
           boxSizing: "border-box",
         }}>
-          {/* Back button */}
-          <button className="back-btn" onClick={goBack} style={{ alignSelf: "flex-start", marginBottom: 16 }}>
-            ← BACK
-          </button>
-
           {/* Name */}
           <h2 style={{
             fontFamily: "'Press Start 2P', monospace",
@@ -676,26 +853,60 @@ export default function StreetFighter() {
             ))}
           </div>
 
-          {/* Gallery */}
+          {/* Mode */}
           <div style={{ marginBottom: 8 }}>
-            <p style={{
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: 8,
-              color: C.steel,
-              letterSpacing: "0.15em",
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
               marginBottom: 10,
-            }}>GALLERY</p>
+            }}>
+              <p style={{
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 8,
+                color: C.steel,
+                letterSpacing: "0.15em",
+                margin: 0,
+              }}>MODE</p>
+              {!isMobile && (
+                <p style={{
+                  fontFamily: "'Press Start 2P', monospace",
+                  fontSize: 6,
+                  color: C.steel,
+                  opacity: 0.55,
+                  margin: 0,
+                  letterSpacing: "0.08em",
+                }}>A - D</p>
+              )}
+            </div>
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 8,
             }}>
-              {gallery.map((g, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {skins.map((skin, i) => {
+                const modeImg = selected.modeImgs[i] ?? skin;
+                return (
+                <button
+                  key={`${skin}-${i}`}
+                  onClick={() => selectMode(i)}
+                  onMouseEnter={() => i !== skinIndex && playSfx("move")}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    padding: 0,
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer",
+                    outline: "none",
+                  }}
+                >
                   <Image
                     className="gallery-img"
-                    src={g.src}
-                    alt={g.caption}
+                    src={modeImg}
+                    alt={`${selected.name} ${selected.skinNames[i] ?? `Mode ${i + 1}`}`}
                     width={360}
                     height={480}
                     unoptimized
@@ -705,70 +916,34 @@ export default function StreetFighter() {
                       objectFit: "cover",
                       objectPosition: "top",
                       display: "block",
+                      borderColor: i === skinIndex ? C.red : "#BBD5DA33",
+                      filter: i === skinIndex ? "brightness(1.18)" : "brightness(0.78) grayscale(0.35)",
                     }}
                   />
                   <p style={{
                     fontFamily: "'Press Start 2P', monospace",
                     fontSize: 6,
-                    color: C.steel,
+                    color: i === skinIndex ? C.white : C.steel,
                     margin: 0,
                     textAlign: "center",
-                    opacity: 0.6,
+                    opacity: i === skinIndex ? 1 : 0.6,
                     lineHeight: 1.4,
                   }}>
-                    {g.caption}
+                    {selected.skinNames[i] ?? `Mode ${i + 1}`}
                   </p>
-                </div>
-              ))}
+                </button>
+                );
+              })}
             </div>
           </div>
-
-          {/* Skin selector mini */}
-          {skins.length > 1 && (
-            <div style={{ marginTop: 12 }}>
-              <p style={{
-                fontFamily: "'Press Start 2P', monospace",
-                fontSize: 8, color: C.steel, marginBottom: 8,
-              }}>COSTUMES</p>
-              <div style={{ display: "flex", gap: 8 }}>
-                {skins.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setSkinIndex(i); skinIndexRef.current = i; setSlideKey(k => k + 1); }}
-                    style={{
-                      width: 48, height: 56,
-                      backgroundImage: `url(${s})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "top",
-                      border: i === skinIndex ? `2px solid ${C.red}` : "1px solid #444",
-                      cursor: "pointer",
-                      filter: i === skinIndex ? "brightness(1.3)" : "brightness(0.6) grayscale(0.5)",
-                      transition: "all 0.2s",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* ══════════ TICKER BAWAH — mobile only ══════════ */}
-      {isMobile && !isSelected && (
-        <div style={{
-          position: "relative", zIndex: 30, width: "100%",
-          background: "rgba(0,0,0,0.55)",
-          borderTop: `2px solid ${C.red}`,
-          overflow: "hidden",
-        }}>
-          <div style={{ overflow: "hidden", padding: "5px 0 2px" }}>
-            <span className="tk-small-h ticker-h-fwd">{tickerBot}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{tickerBot}</span>
-          </div>
-          <div style={{ overflow: "hidden", padding: "2px 0 5px" }}>
-            <span className="tk-big-h ticker-h-rev">{TICKER_TOP_TEXT}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{TICKER_TOP_TEXT}</span>
-          </div>
-        </div>
+        </>
       )}
     </div>
+
+    <GallerySection />
+    </>
   );
 }
