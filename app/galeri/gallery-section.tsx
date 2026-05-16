@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { galleryPhotos } from "./gallery-data";
+import { galleryPhotos } from "../_data/galeri/gallery";
 
 export default function GallerySection() {
   return (

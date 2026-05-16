@@ -6,9 +6,9 @@ import {
   characters,
   statLabels,
   type Character,
-} from "./data";
+} from "../_data/galeri/characters";
 import GallerySection from "./gallery-section";
-import { useArcadeAudio } from "./useArcadeAudio";
+import { useArcadeAudio } from "./use-arcade-audio";
 
 const C = {
   white:   "#F5F5F5",

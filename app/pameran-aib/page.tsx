@@ -1,3 +1,5 @@
+import ComingSoonPage from "../_components/common/coming-soon-page";
+
 export default function PameranAibPage() {
-  return <main className="min-h-screen bg-white text-black" />;
+  return <ComingSoonPage />;
 }

@@ -8,7 +8,7 @@ export const galleryPhotos: GalleryPhoto[] = [
   {
     title: "Bagas, Fahdil, Paundra",
     caption: "Momen bareng setelah Bukber.",
-    src: "/gallery/Bagas-Fahdil-Paundra.jpg",
+    src: "/gallery/bagas-fahdil-paundra.jpg",
   },
   {
     title: "E-Football Tour",
@@ -18,11 +18,11 @@ export const galleryPhotos: GalleryPhoto[] = [
   {
     title: "Fahdil & Frans",
     caption: "Dua kawan, satu frame, banyak cerita.",
-    src: "/gallery/Fahdil-Frans.jpg",
+    src: "/gallery/fahdil-frans.jpg",
   },
   {
     title: "Paundra & Chris",
     caption: "Potret santai dari duo KBM.",
-    src: "/gallery/Paundra-Chris.jpg",
+    src: "/gallery/paundra-chris.jpg",
   },
 ];
