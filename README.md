@@ -1,5 +1,3 @@
-# Website KBM
-
 ## Deskripsi
 Website KBM merupakan website profil Keluarga Besar Maheswara (KBM) berbasis *web* yang dirancang sebagai media informasi, dokumentasi, dan publikasi kegiatan komunitas. Website ini menampilkan halaman beranda, galeri, kritik dan saran, serta beberapa halaman tambahan seperti kutipan, playlist, gaming, dan pameran yang disiapkan untuk pengembangan berikutnya.
 
@@ -95,7 +93,7 @@ Website KBM bertujuan untuk menjadi pusat informasi digital yang rapi, mudah dia
 * `npm run lint` untuk memeriksa kualitas kode dengan ESLint.
 
 ## Domain
-Website dapat diakses melalui (Server Production/Vercel):
+Website dapat diakses melalui:
 [https://website-kbm.vercel.app](https://website-kbm.vercel.app)
 
 ---
