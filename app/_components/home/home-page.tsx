@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { activities, ladderWords, notes } from "../../_data/home";
 import FoundersBook from "./founders-book";
+import HomeScrollReveal from "./home-scroll-reveal";
 import SplashIntro from "./splash-intro";
 
 function TinyMeta({
@@ -136,7 +137,7 @@ function MiniMilitiaImage({
 function HeroSection() {
   return (
     <div id="about-kbm" className="grid scroll-mt-24 gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-      <div className="relative px-5 py-6 sm:px-8 sm:py-8">
+      <div data-home-reveal data-home-reveal-delay="0" className="relative px-5 py-6 sm:px-8 sm:py-8">
         <div
           className="pointer-events-none absolute -inset-x-8 -inset-y-10 bg-[linear-gradient(to_right,rgba(187,213,218,0.13)_1px,transparent_1px),linear-gradient(to_bottom,rgba(187,213,218,0.13)_1px,transparent_1px),radial-gradient(circle_at_30%_20%,rgba(223,241,241,0.22),transparent_35%)] bg-[size:72px_72px,72px_72px,100%_100%] [mask-image:radial-gradient(ellipse_at_center,black_35%,rgba(0,0,0,0.7)_58%,transparent_82%)]"
           aria-hidden="true"
@@ -175,7 +176,7 @@ function HeroSection() {
         </div>
       </div>
 
-      <div className="relative">
+      <div data-home-reveal data-home-reveal-delay="120" className="relative">
         <HeroPeopleImage />
         <PeopleConnectionArrow />
       </div>
@@ -186,7 +187,7 @@ function HeroSection() {
 function IdentitySection() {
   return (
     <section className="grid gap-10 py-14 lg:grid-cols-[1.25fr_0.75fr]">
-      <div className="overflow-hidden pt-8 lg:pt-14">
+      <div data-home-reveal data-home-reveal-delay="0" className="overflow-hidden pt-8 lg:pt-14">
         <div className="grid gap-3">
           {ladderWords.map((item, index) => (
             <span
@@ -204,14 +205,14 @@ function IdentitySection() {
         </div>
       </div>
 
-      <div className="grid gap-8">
+      <div data-home-reveal data-home-reveal-delay="100" className="grid gap-8">
         <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[#FF0000]">
           tongkrongan, keluarga.
         </h2>
         <IdentityPeopleImage />
       </div>
 
-      <div className="lg:col-span-2 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <div data-home-reveal data-home-reveal-delay="180" className="lg:col-span-2 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-6 text-base leading-8 text-black/62">
           <p>
             KBM bisa disebut komunitas, bisa juga disebut tongkrongan. Tapi yang paling pas, KBM adalah keluarga kecil yang tumbuh dari kebiasaan bersama.
@@ -229,7 +230,7 @@ function HistorySection() {
   return (
     <section className="relative overflow-hidden py-16">
       <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
-        <div className="relative">
+        <div data-home-reveal data-home-reveal-delay="0" className="relative">
           <div className="mb-8 h-1 w-24 bg-[#FF0000]" aria-hidden="true" />
           <h2 className="relative z-10 text-6xl font-semibold leading-[0.88] text-[#FF0000] sm:text-7xl lg:text-8xl">
             from Mini
@@ -242,7 +243,7 @@ function HistorySection() {
           </p>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div data-home-reveal data-home-reveal-delay="120" className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <MiniMilitiaImage />
 
           <div className="grid gap-10 [grid-auto-rows:1fr]">
@@ -273,12 +274,16 @@ function HistorySection() {
 function StickyNote({
   children,
   tilt,
+  delay,
 }: {
   children: ReactNode;
   tilt: string;
+  delay: number;
 }) {
   return (
     <div
+      data-home-reveal
+      data-home-reveal-delay={delay}
       className={`relative min-h-[220px] bg-[#DFF1F1]/60 px-6 pb-6 pt-10 shadow-[0_20px_36px_rgba(0,0,0,0.08)] transition-transform duration-300 hover:rotate-0 ${tilt}`}
     >
       <span
@@ -301,13 +306,13 @@ function NotesSection() {
 
   return (
     <section className="py-16">
-      <h2 className="text-center text-[clamp(3rem,7vw,6rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-[#FF0000]">
+      <h2 data-home-reveal data-home-reveal-delay="0" className="text-center text-[clamp(3rem,7vw,6rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-[#FF0000]">
         core notes
       </h2>
 
       <div className="mx-auto mt-14 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {notes.map((note, index) => (
-          <StickyNote key={note} tilt={noteTilts[index % noteTilts.length]}>
+          <StickyNote key={note} tilt={noteTilts[index % noteTilts.length]} delay={index * 90}>
             {note}
           </StickyNote>
         ))}
@@ -319,11 +324,11 @@ function NotesSection() {
 function ActivitiesSection() {
   return (
     <section className="grid gap-10 py-14 lg:grid-cols-[0.75fr_1.25fr]">
-      <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[#FF0000]">
+      <h2 data-home-reveal data-home-reveal-delay="0" className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[#FF0000]">
         what we do
       </h2>
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+      <div data-home-reveal data-home-reveal-delay="120" className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="flex flex-wrap gap-x-4 gap-y-3">
           {activities.map((item, index) => (
             <span
@@ -346,31 +351,35 @@ function ActivitiesSection() {
 function FoundersSection() {
   return (
     <section className="grid gap-10 py-14 lg:grid-cols-[0.75fr_1.25fr]">
-      <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[#FF0000]">
+      <h2 data-home-reveal data-home-reveal-delay="0" className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[#FF0000]">
         the first eight
       </h2>
 
-      <FoundersBook />
+      <div data-home-reveal data-home-reveal-delay="120">
+        <FoundersBook />
+      </div>
     </section>
   );
 }
 
 export default function HomePage() {
   return (
-    <main className="bg-[#F5F5F5] text-black">
-      <SplashIntro />
-      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <HeroSection />
-        <IdentitySection />
-        <Divider />
-        <HistorySection />
-        <Divider />
-        <NotesSection />
-        <Divider />
-        <ActivitiesSection />
-        <Divider />
-        <FoundersSection />
-      </section>
-    </main>
+    <HomeScrollReveal>
+      <main className="bg-[#F5F5F5] text-black">
+        <SplashIntro />
+        <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
+          <HeroSection />
+          <IdentitySection />
+          <Divider />
+          <HistorySection />
+          <Divider />
+          <NotesSection />
+          <Divider />
+          <ActivitiesSection />
+          <Divider />
+          <FoundersSection />
+        </section>
+      </main>
+    </HomeScrollReveal>
   );
 }

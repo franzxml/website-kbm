@@ -1,5 +1,5 @@
 import SiteFooter from "./footer";
-import SiteHeader from "./header";
+import ConditionalHeader from "./conditional-header";
 
 export default function SiteShell({
   children,
@@ -8,7 +8,7 @@ export default function SiteShell({
 }>) {
   return (
     <>
-      <SiteHeader />
+      <ConditionalHeader />
       <div className="flex-1">{children}</div>
       <SiteFooter />
     </>

@@ -29,3 +29,25 @@ body.home-splash-logo-active #kbm-site-header {
   opacity: 0;
   pointer-events: none;
 }
+
+.home-reveal-pending {
+  opacity: 0;
+  translate: 0 2rem;
+  transition:
+    opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--home-reveal-delay, 0ms);
+}
+
+.home-reveal-pending.home-reveal-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal-pending {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+}

@@ -12,19 +12,16 @@ export const headerPalette = [
   colors.accent,
 ];
 
-export const navItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  hasDropdown: boolean;
+  children?: readonly Omit<NavItem, "children" | "hasDropdown">[];
+};
+
+export const navItems: readonly NavItem[] = [
   { label: "Beranda", href: "/", hasDropdown: false },
   { label: "Galeri", href: "/galeri", hasDropdown: false },
-  { label: "Gaming", href: "/gaming", hasDropdown: false },
   { label: "Kutipan", href: "/kutipan", hasDropdown: false },
-  { label: "Playlist", href: "/playlist", hasDropdown: false },
-  {
-    label: "Pameran",
-    href: "/pameran-proyek",
-    hasDropdown: true,
-    children: [
-      { label: "Proyek", href: "/pameran-proyek" },
-      { label: "Aib", href: "/pameran-aib" },
-    ],
-  },
+  { label: "Pameran", href: "/pameran-proyek", hasDropdown: false },
 ];
